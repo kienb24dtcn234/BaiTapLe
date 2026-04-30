@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách nhân viên</title>
+</head>
+<body>
+<h1>Danh sách nhân viên</h1>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Tên</th>
+        <th>Tuổi</th>
+        <th>Status</th>
+        <th>Phòng ban</th>
+        <th>Địa điểm phòng ban</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="emp : ${employees}">
+        <td th:text="${emp.id}"></td>
+        <td th:text="${emp.name}"></td>
+        <td th:text="${emp.age}"></td>
+        <td th:text="${emp.status}"></td>
+        <td th:text="${emp.department.name}"></td>
+        <td th:text="${emp.department.location}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
