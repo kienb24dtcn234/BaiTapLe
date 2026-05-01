@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm nhân viên</title>
+</head>
+<body>
+<h1>Thêm nhân viên mới</h1>
+
+<form th:action="@{/employees}" th:object="${employee}" method="post" enctype="multipart/form-data">
+    <div>
+        <label>Họ tên:</label>
+        <input type="text" th:field="*{name}" required>
+    </div>
+
+    <div>
+        <label>Tuổi:</label>
+        <input type="number" th:field="*{age}">
+    </div>
+
+    <div>
+        <label>Trạng thái:</label>
+        <input type="text" th:field="*{status}">
+    </div>
+
+    <div>
+        <label>Phòng ban:</label>
+        <select th:field="*{department.id}" required>
+            <option value="" disabled selected>-- Chọn phòng ban --</option>
+            <option th:each="dept : ${departments}"
+                    th:value="${dept.id}"
+                    th:text="${dept.name}">
+            </option>
+        </select>
+    </div>
+
+    <div>
+        <label>Avatar:</label>
+        <input type="file" name="avatarFile" accept="image/*">
+    </div>
+
+    <div>
+        <button type="submit">Lưu</button>
+        <a th:href="@{/employees}">Quay lại danh sách</a>
+    </div>
+</form>
+
+</body>
+</html>

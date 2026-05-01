@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách nhân viên</title>
+    <style>
+        .avatar-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+<h1>Danh sách nhân viên</h1>
+
+<a th:href="@{/employees/new}">Thêm nhân viên mới</a>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Tên</th>
+        <th>Tuổi</th>
+        <th>Avatar</th>
+        <th>Status</th>
+        <th>Phòng ban</th>
+        <th>Địa điểm phòng ban</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="emp : ${employees}">
+        <td th:text="${emp.id}"></td>
+        <td th:text="${emp.name}"></td>
+        <td th:text="${emp.age}"></td>
+        <td>
+            <img th:if="${emp.avatar != null}"
+                 th:src="@{'/uploads/' + ${emp.avatar}}"
+                 alt="avatar" class="avatar-thumb">
+            <span th:if="${emp.avatar == null}">No avatar</span>
+        </td>
+        <td th:text="${emp.status}"></td>
+        <td th:text="${emp.department.name}"></td>
+        <td th:text="${emp.department.location}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
