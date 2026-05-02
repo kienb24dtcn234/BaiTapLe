@@ -9,12 +9,47 @@
             height: 80px;
             object-fit: cover;
         }
+        .pagination a, .pagination span {
+            margin: 0 4px;
+            text-decoration: none;
+        }
+        .pagination .active {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 <h1>Danh sách nhân viên</h1>
 
 <a th:href="@{/employees/new}">Thêm nhân viên mới</a>
+
+<form th:action="@{/employees}" method="get">
+    <input type="text" name="keyword" placeholder="Tìm theo tên"
+           th:value="${keyword}">
+    <input type="hidden" name="sortField" th:value="${sortField}">
+    <input type="hidden" name="sortDir" th:value="${sortDir}">
+    <button type="submit">Tìm kiếm</button>
+</form>
+
+<div>
+    Sắp xếp theo:
+    <a th:href="@{/employees(
+                    page=0,
+                    sortField='name',
+                    sortDir=${sortField == 'name' ? reverseSortDir : 'asc'},
+                    keyword=${keyword}
+                )}">
+        Tên
+    </a> |
+    <a th:href="@{/employees(
+                    page=0,
+                    sortField='age',
+                    sortDir=${sortField == 'age' ? reverseSortDir : 'asc'},
+                    keyword=${keyword}
+                )}">
+        Tuổi
+    </a>
+</div>
 
 <table border="1" cellpadding="8" cellspacing="0">
     <thead>
@@ -29,6 +64,9 @@
     </tr>
     </thead>
     <tbody>
+    <tr th:if="${#lists.isEmpty(employees)}">
+        <td colspan="7">Không tìm thấy nhân viên nào</td>
+    </tr>
     <tr th:each="emp : ${employees}">
         <td th:text="${emp.id}"></td>
         <td th:text="${emp.name}"></td>
@@ -45,6 +83,25 @@
     </tr>
     </tbody>
 </table>
+
+<div class="pagination" th:if="${totalPages > 1}">
+    <a th:if="${currentPage > 0}"
+       th:href="@{/employees(page=${currentPage - 1}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}">
+        Previous
+    </a>
+
+    <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <span th:if="${i == currentPage}" class="active" th:text="${i + 1}"></span>
+        <a th:if="${i != currentPage}"
+           th:href="@{/employees(page=${i}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}"
+           th:text="${i + 1}"></a>
+    </span>
+
+    <a th:if="${currentPage + 1 < totalPages}"
+       th:href="@{/employees(page=${currentPage + 1}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}">
+        Next
+    </a>
+</div>
 
 </body>
 </html>
