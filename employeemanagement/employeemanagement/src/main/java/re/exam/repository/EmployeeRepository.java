@@ -1,11 +1,13 @@
 package re.exam.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import re.exam.entity.Department;
 import re.exam.entity.Employee;
 
-public interface  EmployeeRepository extends JpaRepository<Employee, Long> {
+import java.util.List;
 
-    Page<Employee> findByNameContainingIgnoreCase(String name, Pageable pageable);
+public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSpecificationExecutor<Employee> {
+
+    List<Employee> findByDepartment(Department department);
 }

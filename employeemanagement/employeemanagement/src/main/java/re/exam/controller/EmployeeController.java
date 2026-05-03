@@ -1,4 +1,3 @@
-// src/main/java/re/exam/controller/EmployeeController.java
 package re.exam.controller;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -10,27 +9,28 @@ import org.springframework.web.multipart.MultipartFile;
 import re.exam.entity.Department;
 import re.exam.entity.Employee;
 import re.exam.repository.DepartmentRepository;
-import re.exam.repository.EmployeeRepository;
+import re.exam.service.EmployeeService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
 @RequestMapping("/employees")
 public class EmployeeController {
 
-    private final EmployeeRepository employeeRepository;
+    private final EmployeeService employeeService;
     private final DepartmentRepository departmentRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public EmployeeController(EmployeeRepository employeeRepository,
+    public EmployeeController(EmployeeService employeeService,
                               DepartmentRepository departmentRepository) {
-        this.employeeRepository = employeeRepository;
+        this.employeeService = employeeService;
         this.departmentRepository = departmentRepository;
     }
 
@@ -41,7 +41,10 @@ public class EmployeeController {
             @RequestParam(name = "size", defaultValue = "5") int size,
             @RequestParam(name = "sortField", defaultValue = "name") String sortField,
             @RequestParam(name = "sortDir", defaultValue = "asc") String sortDir,
-            @RequestParam(name = "keyword", defaultValue = "") String keyword
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "departmentId", required = false) Long departmentId,
+            @RequestParam(name = "minAge", required = false) Integer minAge,
+            @RequestParam(name = "maxAge", required = false) Integer maxAge
     ) {
 
         if (page < 0) {
@@ -53,27 +56,20 @@ public class EmployeeController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Employee> employeePage;
-        if (keyword != null && !keyword.isBlank()) {
-            employeePage = employeeRepository.findByNameContainingIgnoreCase(keyword, pageable);
-        } else {
-            employeePage = employeeRepository.findAll(pageable);
-        }
+        String nameFilter = keyword != null ? keyword : "";
+
+        Page<Employee> employeePage = employeeService.search(
+                nameFilter, departmentId, minAge, maxAge, pageable
+        );
 
         int totalPages = employeePage.getTotalPages();
         if (page >= totalPages && totalPages > 0) {
             page = totalPages - 1;
             pageable = PageRequest.of(page, size, sort);
-            if (keyword != null && !keyword.isBlank()) {
-                employeePage = employeeRepository.findByNameContainingIgnoreCase(keyword, pageable);
-            } else {
-                employeePage = employeeRepository.findAll(pageable);
-            }
+            employeePage = employeeService.search(nameFilter, departmentId, minAge, maxAge, pageable);
         }
 
-        model.addAttribute("employeePage", employeePage);
         model.addAttribute("employees", employeePage.getContent());
-
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", employeePage.getTotalPages());
         model.addAttribute("totalItems", employeePage.getTotalElements());
@@ -82,8 +78,13 @@ public class EmployeeController {
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", "asc".equalsIgnoreCase(sortDir) ? "desc" : "asc");
 
-        model.addAttribute("keyword", keyword);
+        model.addAttribute("keyword", nameFilter);
+        model.addAttribute("departmentId", departmentId);
+        model.addAttribute("minAge", minAge);
+        model.addAttribute("maxAge", maxAge);
         model.addAttribute("size", size);
+
+        model.addAttribute("departments", departmentRepository.findAll());
 
         return "employees";
     }
@@ -127,8 +128,7 @@ public class EmployeeController {
             employee.setAvatar(newFileName);
         }
 
-        employeeRepository.save(employee);
-
+        employeeService.search("", null, null, null, PageRequest.of(0, 1));
         return "redirect:/employees";
     }
 }

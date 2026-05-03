@@ -24,11 +24,35 @@
 <a th:href="@{/employees/new}">Thêm nhân viên mới</a>
 
 <form th:action="@{/employees}" method="get">
-    <input type="text" name="keyword" placeholder="Tìm theo tên"
+    <input type="text"
+           name="keyword"
+           placeholder="Tìm theo tên"
            th:value="${keyword}">
+
+    <select name="departmentId">
+        <option th:value=""
+                th:selected="${departmentId == null}">
+            -- Tất cả phòng ban --
+        </option>
+        <option th:each="dept : ${departments}"
+                th:value="${dept.id}"
+                th:text="${dept.name}"
+                th:selected="${departmentId != null and departmentId == dept.id}">
+        </option>
+    </select>
+
+    <input type="number"
+           name="minAge"
+           placeholder="Tuổi từ"
+           th:value="${minAge}">
+    <input type="number"
+           name="maxAge"
+           placeholder="Tuổi đến"
+           th:value="${maxAge}">
+
     <input type="hidden" name="sortField" th:value="${sortField}">
     <input type="hidden" name="sortDir" th:value="${sortDir}">
-    <button type="submit">Tìm kiếm</button>
+    <button type="submit">Lọc</button>
 </form>
 
 <div>
@@ -37,7 +61,10 @@
                     page=0,
                     sortField='name',
                     sortDir=${sortField == 'name' ? reverseSortDir : 'asc'},
-                    keyword=${keyword}
+                    keyword=${keyword},
+                    departmentId=${departmentId},
+                    minAge=${minAge},
+                    maxAge=${maxAge}
                 )}">
         Tên
     </a> |
@@ -45,7 +72,10 @@
                     page=0,
                     sortField='age',
                     sortDir=${sortField == 'age' ? reverseSortDir : 'asc'},
-                    keyword=${keyword}
+                    keyword=${keyword},
+                    departmentId=${departmentId},
+                    minAge=${minAge},
+                    maxAge=${maxAge}
                 )}">
         Tuổi
     </a>
@@ -86,19 +116,45 @@
 
 <div class="pagination" th:if="${totalPages > 1}">
     <a th:if="${currentPage > 0}"
-       th:href="@{/employees(page=${currentPage - 1}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}">
+       th:href="@{/employees(
+                    page=${currentPage - 1},
+                    sortField=${sortField},
+                    sortDir=${sortDir},
+                    keyword=${keyword},
+                    departmentId=${departmentId},
+                    minAge=${minAge},
+                    maxAge=${maxAge}
+                )}">
         Previous
     </a>
 
     <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-        <span th:if="${i == currentPage}" class="active" th:text="${i + 1}"></span>
+        <span th:if="${i == currentPage}"
+              class="active"
+              th:text="${i + 1}"></span>
         <a th:if="${i != currentPage}"
-           th:href="@{/employees(page=${i}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}"
+           th:href="@{/employees(
+                        page=${i},
+                        sortField=${sortField},
+                        sortDir=${sortDir},
+                        keyword=${keyword},
+                        departmentId=${departmentId},
+                        minAge=${minAge},
+                        maxAge=${maxAge}
+                    )}"
            th:text="${i + 1}"></a>
     </span>
 
     <a th:if="${currentPage + 1 < totalPages}"
-       th:href="@{/employees(page=${currentPage + 1}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}">
+       th:href="@{/employees(
+                    page=${currentPage + 1},
+                    sortField=${sortField},
+                    sortDir=${sortDir},
+                    keyword=${keyword},
+                    departmentId=${departmentId},
+                    minAge=${minAge},
+                    maxAge=${maxAge}
+                )}">
         Next
     </a>
 </div>
